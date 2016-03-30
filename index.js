@@ -1,0 +1,1 @@
+import Init from './jsx/init.jsx';
