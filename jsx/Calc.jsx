@@ -47,6 +47,62 @@ const Screen = (props) => (
   </div>
 );
 
+const Operations = (props) => (<div>
+    <Cell text="+" />
+    <Cell text="-" />
+    <Cell text="+" rotate="rotate"/>
+    <Cell text="-" rotate="rotate"/>
+  </div>
+);
+
+const Commands = (props) => (<div>
+    <div className="row">
+      <Cell text="1" />
+      <Cell text="2" />
+      <Cell text="3" />
+    </div>
+    <div className="row">
+      <Cell text="4" />
+      <Cell text="5" />
+      <Cell text="6" />
+    </div>
+    <div className="row">
+      <Cell text="7" />
+      <Cell text="8" />
+      <Cell text="9" />
+    </div>
+    <div className="row">
+      <Cell text="C" optClass="dark"/>
+      <Cell text="0" />
+      <Cell text="=" optClass="action"/>
+    </div>
+  </div>
+);
+
+class Cell extends React.Component {
+  constructor() {
+    super();
+  }
+
+  render(){
+    console.log('props', this.props);
+    let props = this.props;
+    let  _className = 'cell';
+    if(props.optClass){
+      _className+=' ' + props.optClass;
+    }
+
+    return (
+      <div className={_className} >
+          <p>
+            <span className={props.rotate}>
+            {props.text}</span>
+          </p>
+      </div>
+    );
+  }
+}
+
 const CalcInput = (props) => (
    <input type="text" value={props.text} 
       onChange={() => {console.log('somthing happened')}}>
@@ -61,3 +117,5 @@ const CalcButton = (props) => (
 
 ReactDOM.render(<Calc />, document.getElementById('calc'));
 ReactDOM.render(<Screen />, document.querySelector('.top'));
+ReactDOM.render(<Operations />, document.querySelector('.operations'));
+ReactDOM.render(<Commands />, document.querySelector('.commands'));
