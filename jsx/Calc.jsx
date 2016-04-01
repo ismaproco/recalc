@@ -6,7 +6,7 @@ require("../styles/style.less");
 class Calc extends React.Component {
   constructor() {
     super();
-    this.state = { operationText: '0' };
+    this.state = { operation: '' };
   }
 
   handleClick(elem) {
@@ -15,43 +15,46 @@ class Calc extends React.Component {
     this.setState({operationText: elem.val});
   }
 
+  changeOperation(cell){
+    console.log('operation', cell, this);
+    this.setState({operation: (<span className={cell.props.rotate}>{cell.props.text}</span> )});
+  }
+
   render() {
 
-    var boundClick = this.handleClick.bind(this);
+    let boundClick = this.handleClick.bind(this);
+    let changeOperation = this.changeOperation.bind(this);
 
     return (
       <div>
-        <h1>This is the calc</h1>
-        {this.state.operationText}
-        <CalcInput text={this.state.operationText} />
-        <CalcButton text="1" val="1" type="number" onclick={boundClick} />
-        <CalcButton text="2" val="2" type="number" onclick={boundClick} />
-        <CalcButton text="3" val="3" type="number" onclick={boundClick} />
-        <CalcButton text="4" val="4" type="number" onclick={boundClick} />
-        <CalcButton text="5" val="5" type="number" onclick={boundClick} />
-        <CalcButton text="6" val="6" type="number" onclick={boundClick} />
-        <CalcButton text="7" val="7" type="number" onclick={boundClick} />
-        <CalcButton text="8" val="8" type="number" onclick={boundClick} />
-        <CalcButton text="9" val="9" type="number" onclick={boundClick} />
-        <CalcButton text="0" val="0" type="number" onclick={boundClick} />
+        <div className="top">
+          <Screen operation={this.state.operation} />
+        </div>  
+        <div className="operations" >
+            <Operations operationHandler={changeOperation}/>
+        </div>
+        <div className="commands">
+            <Commands />
+        </div>
       </div>
-      );
+    );
   }
 }
 
 const Screen = (props) => (
   <div>
-    <div className="operation">+</div>
+    <div className="operation">{props.operation}</div>
     <div className="value">1000</div>
     <div className="memory">69</div>
   </div>
 );
 
-const Operations = (props) => (<div>
-    <Cell text="+" />
-    <Cell text="-" />
-    <Cell text="+" rotate="rotate"/>
-    <Cell text="-" rotate="rotate"/>
+const Operations = (props) => (
+  <div>
+    <Cell text="+" cellHandler={props.operationHandler} />
+    <Cell text="-" cellHandler={props.operationHandler}/>
+    <Cell text="+" rotate="rotate" cellHandler={props.operationHandler}/>
+    <Cell text="-" rotate="rotate" cellHandler={props.operationHandler}/>
   </div>
 );
 
@@ -85,15 +88,20 @@ class Cell extends React.Component {
   }
 
   render(){
-    console.log('props', this.props);
     let props = this.props;
     let  _className = 'cell';
     if(props.optClass){
       _className+=' ' + props.optClass;
     }
 
+    let cellHandler = (args) => {
+      if(props.cellHandler) {
+        props.cellHandler(this);
+      }
+    }
+
     return (
-      <div className={_className} >
+      <div className={_className} onClick={cellHandler}>
           <p>
             <span className={props.rotate}>
             {props.text}</span>
@@ -105,7 +113,7 @@ class Cell extends React.Component {
 
 const CalcInput = (props) => (
    <input type="text" value={props.text} 
-      onChange={() => {console.log('somthing happened')}}>
+      onChange={ () => {console.log('somthing happened')} }>
     </input>
 );
 
@@ -115,7 +123,4 @@ const CalcButton = (props) => (
     </button>
 );
 
-ReactDOM.render(<Calc />, document.getElementById('calc'));
-ReactDOM.render(<Screen />, document.querySelector('.top'));
-ReactDOM.render(<Operations />, document.querySelector('.operations'));
-ReactDOM.render(<Commands />, document.querySelector('.commands'));
+ReactDOM.render(<Calc />, document.getElementById('main'));
