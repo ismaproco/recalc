@@ -47,6 +47,9 @@ body {
     position:absolute;
     right: 37.5px;
     top: 75px;
+    overflow-x: auto;
+    width: 350px;
+    text-align: right;
   }
 }
 
@@ -94,7 +97,7 @@ body {
 	position: relative;
 	border-bottom: solid 2px #f0f0f0;
   font-size: 1.5em;
-  
+
   .cell {
     width: 33.33%;
     height: 100%;
@@ -109,6 +112,13 @@ body {
       display: flex;
       justify-content: center; 
       align-items: center; 
+       -webkit-touch-callout: none; /* iOS Safari */
+      -webkit-user-select: none;   /* Chrome/Safari/Opera */
+      -khtml-user-select: none;    /* Konqueror */
+      -moz-user-select: none;      /* Firefox */
+      -ms-user-select: none;       /* IE/Edge */
+      user-select: none;           /* non-prefixed version, currently
+                                      not supported by any browser */
     }
     &:hover {
       background-color: rgba(0,0,0,0.2);
