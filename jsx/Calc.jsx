@@ -6,35 +6,100 @@ require("../styles/style.less");
 class Calc extends React.Component {
   constructor() {
     super();
-    this.state = { operation: '' };
-  }
-
-  handleClick(elem) {
-    console.log('elem click', elem);
-    this.state.operationText = elem.val;
-    this.setState({operationText: elem.val});
+    this.state = { operation: '', value: 0, memory: undefined };
   }
 
   changeOperation(cell){
-    console.log('operation', cell, this);
+
+    if(cell.props.rotate) {
+      if(cell.props.text == '+'){
+        this.setState({operationText: '*'});  
+      }else {
+        this.setState({operationText: '/'});  
+      }
+    } else {
+      this.setState({operationText: cell.props.text}); 
+    }
+
+    if(!this.state.memory) {
+      this.setState({memory: this.state.value, value: 0});  
+    }
+    
     this.setState({operation: (<span className={cell.props.rotate}>{cell.props.text}</span> )});
   }
 
-  render() {
+  updateValue(event){
+    let target = event.target;
+    let spans = target.getElementsByTagName('span');
+    let text, newValue, result;
 
-    let boundClick = this.handleClick.bind(this);
+    if(spans.length > 0 ) {
+      text = spans[0].innerText;
+    } else {
+      if(target) {
+        text = target.innerText;
+      }
+    }
+
+    if(!isNaN(text)) {
+      if( (this.state.value + text).length < 15 ) {
+        newValue = this.state.value + text;
+      } else {
+        newValue = this.state.value;
+      }  
+      this.setState({value: parseInt( newValue )});
+    } else {
+      if(text === '='){
+        console.log(this.state.operationText);
+        
+        switch(this.state.operationText) {
+          case '+':
+            result = this.state.memory + this.state.value;
+          break;
+          case '-':
+            result = this.state.memory - this.state.value;
+          break;
+          case '*':
+            result = this.state.memory * this.state.value;
+          break;
+          case '/':
+            result = this.state.memory / this.state.value;
+          break;
+        }
+        
+        if(this.state.operationText) {
+          if(result % 1 !== 0){
+            result = parseFloat(result).toFixed(2);
+          }
+          
+          this.setState( { memory: result, value: 0 } );
+
+          
+
+          console.log('result',this.state.operationText ,result);  
+        }
+      } else if( text == 'C' ) {
+        this.setState( { memory: undefined, value: 0, operationText: undefined, operation: ''  } );
+      }
+    }
+  }
+
+  render() {
     let changeOperation = this.changeOperation.bind(this);
+    let updateValue = this.updateValue.bind(this);
 
     return (
       <div>
         <div className="top">
-          <Screen operation={this.state.operation} />
+          <Screen operation={this.state.operation} 
+                  value={this.state.value}
+                  memory={this.state.memory} />
         </div>  
         <div className="operations" >
             <Operations operationHandler={changeOperation}/>
         </div>
         <div className="commands">
-            <Commands />
+            <Commands commandHandler={updateValue} />
         </div>
       </div>
     );
@@ -44,8 +109,8 @@ class Calc extends React.Component {
 const Screen = (props) => (
   <div>
     <div className="operation">{props.operation}</div>
-    <div className="value">1000</div>
-    <div className="memory">69</div>
+    <div className="value">{props.value}</div>
+    <div className="memory">{props.memory}</div>
   </div>
 );
 
@@ -58,7 +123,7 @@ const Operations = (props) => (
   </div>
 );
 
-const Commands = (props) => (<div>
+const Commands = (props) => (<div onClick={props.commandHandler}>
     <div className="row">
       <Cell text="1" />
       <Cell text="2" />
@@ -110,17 +175,5 @@ class Cell extends React.Component {
     );
   }
 }
-
-const CalcInput = (props) => (
-   <input type="text" value={props.text} 
-      onChange={ () => {console.log('somthing happened')} }>
-    </input>
-);
-
-const CalcButton = (props) => (
-   <button onClick={ () => { props.onclick(props) } }>
-      {props.text}
-    </button>
-);
 
 ReactDOM.render(<Calc />, document.getElementById('main'));
