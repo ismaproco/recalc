@@ -3,14 +3,40 @@ import ReactDOM from 'react-dom';
 
 require("../styles/style.less");
 
+function applyOperation( operation, memory, value) {
+  let result;
+  switch(operation) {
+    case '+':
+      result = memory + value;
+      break;
+    case '-':
+      result = memory - value;
+      break;
+    case '*':
+      result = memory * value;
+      break;
+    case '/':
+      result = memory / value;
+      break;
+  }
+
+  if( result % 1 !== 0 ) {
+    result = parseFloat(result).toFixed(2);
+  }
+  
+  return result;    
+}
+
+
 class Calc extends React.Component {
   constructor() {
     super();
     this.state = { operation: '', value: 0, memory: undefined };
   }
-
+  
   changeOperation(cell){
-
+    let prevOperationText = this.state.operationText;
+    
     if(cell.props.rotate) {
       if(cell.props.text == '+'){
         this.setState({operationText: '*'});  
@@ -23,6 +49,15 @@ class Calc extends React.Component {
 
     if(!this.state.memory) {
       this.setState({memory: this.state.value, value: 0});  
+    } else {
+      // apply previous operation and update the current value
+      // only when the value is different from 0
+      if( !isNaN( this.state.value ) && ( this.state.value !== 0 ) ) {
+        if( this.state.operationText  ) {
+          let result = applyOperation( prevOperationText , this.state.memory  , this.state.value);
+          this.setState( { memory: result, value: 0 } );
+        }
+      }
     }
     
     this.setState({operation: (<span className={cell.props.rotate}>{cell.props.text}</span> )});
@@ -50,33 +85,10 @@ class Calc extends React.Component {
       this.setState({value: parseInt( newValue )});
     } else {
       if(text === '='){
-        console.log(this.state.operationText);
-        
-        switch(this.state.operationText) {
-          case '+':
-            result = this.state.memory + this.state.value;
-          break;
-          case '-':
-            result = this.state.memory - this.state.value;
-          break;
-          case '*':
-            result = this.state.memory * this.state.value;
-          break;
-          case '/':
-            result = this.state.memory / this.state.value;
-          break;
-        }
-        
+        this.state.memory = parseFloat( this.state.memory ); 
+        result = applyOperation(this.state.operationText , this.state.memory  , this.state.value);
         if(this.state.operationText) {
-          if(result % 1 !== 0){
-            result = parseFloat(result).toFixed(2);
-          }
-          
           this.setState( { memory: result, value: 0 } );
-
-          
-
-          console.log('result',this.state.operationText ,result);  
         }
       } else if( text == 'C' ) {
         this.setState( { memory: undefined, value: 0, operationText: undefined, operation: ''  } );
